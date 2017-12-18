@@ -10,6 +10,19 @@ using namespace std;
  */
 bool checkArgs(int argc);
 
+/**
+ * @brief Récupère les noms des tables
+ * @return Liste des noms des tables
+ */
+QStringList getTablesName();
+
+/**
+ * @brief Renvoie le script de création de la table
+ * @param nom de la table
+ * @return script de création de la table
+ */
+QString getCreateTable(QString tableName);
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -21,11 +34,14 @@ int main(int argc, char *argv[])
     }
     else
     {
+        //on récupère les paramètres
         QString host = argv[1];
         QString username = argv[2];
         QString password = argv[3];
         QString database = argv[4];
         QString fileName = argv[5];
+
+        //on se connecte à la base de données
         cout<<"--Connecting to "<<host.toStdString()<<":"<<database.toStdString()<<endl;
         QSqlDatabase db;
         db = QSqlDatabase::addDatabase("QMYSQL3");
@@ -35,6 +51,14 @@ int main(int argc, char *argv[])
         db.setPassword(password);
         if(!db.open())
             cout<<"Error connection database: "<<db.lastError().text().toStdString()<<endl;
+        else
+        {
+            //on récupère la liste du nom des tables
+            QStringList tableNames = getTablesName();
+
+
+
+        }
         cout<<"--Generating "<<fileName.toStdString()<<endl;
     }
     return 0;
@@ -49,3 +73,19 @@ bool checkArgs(int argc)
     //nom du fichier
     return argc == 6;
 }
+
+QStringList getTablesName()
+{
+    QStringList tableNames;
+    QSqlQuery queryShowTables;
+    queryShowTables.exec("SHOW tables;");
+    cout<<"Tables: "<<endl;
+    while(queryShowTables.next())
+    {
+        tableNames.append(queryShowTables.value(0).toString());
+    }
+
+    return tableNames;
+}
+
+
